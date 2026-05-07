@@ -123,6 +123,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
 .toast.show{opacity:1}
 /* EMPTY */
 .empty{text-align:center;padding:30px 20px;color:var(--text2);font-size:13px}
+/* UNDO + NOTIF */
+.undo-btn{width:100%;padding:8px;background:none;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:12px;color:var(--text2);cursor:pointer;margin-top:5px}
+.undo-btn:disabled{opacity:0.35;cursor:not-allowed}
+.notif-btn{background:none;border:none;font-size:20px;cursor:pointer;padding:2px 6px;opacity:0.7}
+.notif-btn.on{opacity:1}
 </style>
 </head>
 <body>
@@ -144,7 +149,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
 <div id="view-list" class="view active">
   <div class="app-header">
     <div><div class="app-title">Ornella Fit Coaching</div><div class="app-date" id="today-date"></div></div>
-    <button class="btn-add" onclick="showForm(null)">+ Ajouter</button>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="notif-btn" id="notif-btn" onclick="toggleNotif()" title="Alertes iPhone">🔔</button>
+      <button class="btn-add" onclick="showForm(null)">+ Ajouter</button>
+    </div>
   </div>
   <div class="tabs">
     <button class="tab active" onclick="showTab('actives')">Actives</button>
@@ -318,6 +326,7 @@ function showDetail(id){
       progBar(c)+
       '<div style="display:flex;justify-content:space-between;font-size:10px;color:#B0A8A8;margin-top:3px"><span>0</span><span>'+(pct||0)+'%</span><span>'+c.seancesPrevues+'</span></div>'+
       '<button class="seance-btn" '+btnDis+' onclick="addSeance('+c.id+')">+ Valider une séance</button>'+
+      '<button class="undo-btn" '+(c.seancesEffectuees<=0?'disabled':'')+' onclick="annulerSeance('+c.id+')">↩ Annuler la dernière séance</button>'+
       '<button class="whatsapp-btn" onclick="sendWA('+c.id+')">💬 Envoyer rappel WhatsApp</button>'+
       '</div>';
   }
@@ -440,9 +449,20 @@ function sendRelanceWA(id){
 function addSeance(id){
   var c=clients.find(function(x){return x.id===id;});
   if(!c||!c.seancesPrevues||c.seancesEffectuees>=c.seancesPrevues)return;
-  if(!confirm('Valider une séance pour '+c.nom.split(' ')[0]+' ? ('+c.seancesEffectuees+' → '+(c.seancesEffectuees+1)+'/'+c.seancesPrevues+')'))return;
+  if(!confirm('Valider une séance pour '+c.nom.split(' ')[0]+' ?\n'+c.seancesEffectuees+' → '+(c.seancesEffectuees+1)+' / '+c.seancesPrevues))return;
   c.seancesEffectuees++;save();
+  var reste=c.seancesPrevues-c.seancesEffectuees;
   toast('Séance validée — '+c.seancesEffectuees+'/'+c.seancesPrevues);
+  if(reste<=2&&reste>=0) notifAlerte(c.nom, reste);
+  showDetail(id);
+}
+
+function annulerSeance(id){
+  var c=clients.find(function(x){return x.id===id;});
+  if(!c||c.seancesEffectuees<=0)return;
+  if(!confirm('Annuler la dernière séance de '+c.nom.split(' ')[0]+' ?\n'+(c.seancesEffectuees)+' → '+(c.seancesEffectuees-1)+' / '+c.seancesPrevues))return;
+  c.seancesEffectuees--;save();
+  toast('Séance annulée — '+c.seancesEffectuees+'/'+c.seancesPrevues);
   showDetail(id);
 }
 
@@ -570,8 +590,61 @@ function toast(msg){
   setTimeout(function(){t.classList.remove('show');},2500);
 }
 
+// ── NOTIFICATIONS ─────────────────────────────────────────────
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').catch(function(){});
+}
+
+function updateNotifBtn(){
+  var btn=document.getElementById('notif-btn');
+  if(!btn)return;
+  var granted=('Notification' in window)&&Notification.permission==='granted';
+  btn.classList.toggle('on', granted);
+  btn.title=granted?'Alertes activées ✓':'Activer les alertes iPhone';
+}
+
+function toggleNotif(){
+  if(!('Notification' in window)){toast('Notifications non supportées sur ce navigateur');return;}
+  if(Notification.permission==='granted'){toast('Alertes déjà activées ✓');return;}
+  Notification.requestPermission().then(function(p){
+    updateNotifBtn();
+    if(p==='granted'){toast('Alertes activées ✓');checkAlertesNotif();}
+    else toast('Permission refusée — active dans Réglages');
+  });
+}
+
+function notifAlerte(nom, reste){
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  var msg=reste===0?'Toutes les séances sont terminées !'
+    :'Plus que '+reste+' séance'+(reste>1?'s':'')+'  restante'+(reste>1?'s':'')+'  !';
+  navigator.serviceWorker.ready.then(function(reg){
+    reg.showNotification('OFC Coach — '+nom.split(' ')[0], {body:msg,tag:'seance-'+nom});
+  }).catch(function(){
+    new Notification('OFC Coach — '+nom.split(' ')[0], {body:msg});
+  });
+}
+
+function checkAlertesNotif(){
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  var alertes=clients.filter(function(c){
+    return c.seancesPrevues&&(c.seancesPrevues-c.seancesEffectuees)<=2&&c.statut==='Actif';
+  });
+  if(!alertes.length)return;
+  navigator.serviceWorker.ready.then(function(reg){
+    alertes.forEach(function(c){
+      var reste=c.seancesPrevues-c.seancesEffectuees;
+      reg.showNotification('OFC Coach ⚠️ '+c.nom.split(' ')[0],{
+        body:reste===0?'Pack terminé — penser au renouvellement':'Plus que '+reste+' séance'+(reste>1?'s':'')+' restante'+(reste>1?'s':''),
+        tag:'alerte-'+c.id
+      });
+    });
+  }).catch(function(){});
+}
+
 document.getElementById('today-date').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+updateNotifBtn();
 renderAll();
+checkAlertesNotif();
 </script>
 </body>
 </html>

@@ -385,7 +385,7 @@ function showDetail(id){
 
   // Infos
   html+='<div class="dcard"><div class="dcard-title">Informations</div>';
-  var rows=[['Offre',c.offre],['Début',c.debut],['Téléphone',c.telephone],['Paiement',c.paiement],['Montant',c.montant?c.montant+'€':''],['Payé',c.paye?c.paye+'€ ✓':''],['Notes',c.notes]];
+  var rows=[['Offre',c.offre],['Début',c.debut],['Téléphone',c.telephone],['Adresse',c.adresse],['Ville',c.ville],['Paiement',c.paiement],['Montant',c.montant?c.montant+'€':''],['Payé',c.paye?c.paye+'€ ✓':''],['Notes',c.notes]];
   rows.forEach(function(r){if(r[1])html+='<div class="info-row"><span class="info-l">'+r[0]+'</span><span class="info-v">'+r[1]+'</span></div>';});
   html+='</div>';
 
@@ -492,6 +492,11 @@ function showForm(id){
   html+='<div class="form-section-title">Informations générales</div>';
   html+='<div class="form-group"><label class="form-label">Prénom et nom *</label><input class="form-input" id="f-nom" type="text" value="'+(c?c.nom||'':'')+'"></div>';
   html+='<div class="form-group"><label class="form-label">Téléphone</label><input class="form-input" id="f-tel" type="tel" placeholder="06 xx xx xx xx" value="'+(c?c.telephone||'':'')+'"></div>';
+  html+='<div class="form-group"><label class="form-label">Adresse</label><input class="form-input" id="f-adresse" type="text" placeholder="N° et rue" value="'+(c?c.adresse||'':'')+'"></div>';
+  html+='<div class="form-row">'+
+    '<div class="form-group"><label class="form-label">Code postal</label><input class="form-input" id="f-cp" type="text" inputmode="numeric" placeholder="75000" value="'+(c?c.codePostal||'':'')+'"></div>'+
+    '<div class="form-group"><label class="form-label">Ville</label><input class="form-input" id="f-ville" type="text" placeholder="Paris" value="'+(c?c.ville||'':'')+'"></div>'+
+    '</div>';
   html+='<div class="form-row">'+
     '<div class="form-group"><label class="form-label">Objectif</label>'+
     '<select class="form-input" id="f-obj"><option value="">—</option>'+
@@ -536,14 +541,14 @@ function saveForm(id){
   if(id){
     var c=clients.find(function(x){return x.id===id;});
     if(c){
-      c.nom=nom;c.telephone=gv('f-tel');c.objectif=gv('f-obj');c.lieu=gv('f-lieu');
+      c.nom=nom;c.telephone=gv('f-tel');c.adresse=gv('f-adresse');c.codePostal=gv('f-cp');c.ville=gv('f-ville');c.objectif=gv('f-obj');c.lieu=gv('f-lieu');
       c.offre=gv('f-offre');c.debut=gv('f-debut');c.statut=gv('f-statut');
       c.seancesPrevues=sp;c.seancesEffectuees=se||0;
       c.montant=gn('f-mont');c.paye=gn('f-paye');c.paiement=gv('f-paiem');c.notes=gv('f-notes');
     }
     save();toast('Fiche mise à jour');showDetail(id);
   }else{
-    var nc={id:nextId++,nom:nom,telephone:gv('f-tel'),objectif:gv('f-obj'),lieu:gv('f-lieu'),
+    var nc={id:nextId++,nom:nom,telephone:gv('f-tel'),adresse:gv('f-adresse'),codePostal:gv('f-cp'),ville:gv('f-ville'),objectif:gv('f-obj'),lieu:gv('f-lieu'),
       offre:gv('f-offre'),debut:gv('f-debut'),statut:gv('f-statut'),
       seancesPrevues:sp,seancesEffectuees:se||0,
       montant:gn('f-mont'),paye:gn('f-paye'),paiement:gv('f-paiem'),notes:gv('f-notes'),

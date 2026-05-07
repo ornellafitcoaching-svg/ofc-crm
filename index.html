@@ -211,32 +211,39 @@ var COLORS = [
 ];
 var MFIELDS = [
   {key:'poids',label:'Poids',unit:'kg'},
-  {key:'taille',label:'Taille',unit:'cm'},
+  {key:'taille',label:'Taille (hauteur)',unit:'cm'},
   {key:'tourTaille',label:'Tour taille',unit:'cm'},
   {key:'tourHanches',label:'Tour hanches',unit:'cm'},
   {key:'tourFessiers',label:'Tour fessiers',unit:'cm'},
   {key:'tourCuisses',label:'Tour cuisses',unit:'cm'},
   {key:'tourPoitrine',label:'Poitrine',unit:'cm'},
+  {key:'tourDos',label:'Tour dos',unit:'cm'},
   {key:'tourBras',label:'Bras',unit:'cm'}
 ];
 
 var defaultClients = [
-  {id:1,nom:"Louise Gabillaud",telephone:"",offre:"24 séances présentiel",debut:"03/04/2026",seancesPrevues:24,seancesEffectuees:5,montant:1200,paye:1200,paiement:"Virement",statut:"Actif",objectif:"Perte de poids",lieu:"Domicile",notes:"",ci:0,mesures:[]},
-  {id:2,nom:"Béatrice Peuvrier",telephone:"",offre:"Pack 10 séances",debut:"03/03/2026",seancesPrevues:10,seancesEffectuees:1,montant:null,paye:null,paiement:"Virement",statut:"Actif",objectif:"Remise en forme",lieu:"Domicile",notes:"",ci:1,mesures:[]},
-  {id:3,nom:"Émeline Cozzi",telephone:"",offre:"1 séance/sem - 1 mois",debut:"21/04/2026",seancesPrevues:4,seancesEffectuees:3,montant:290,paye:290,paiement:"Virement",statut:"Actif",objectif:"Prise de masse",lieu:"Domicile",notes:"",ci:2,mesures:[]},
-  {id:4,nom:"Sandra Daouadi",telephone:"",offre:"1 mois PDF Distanciel",debut:"15/04/2026",seancesPrevues:null,seancesEffectuees:null,montant:59,paye:59,paiement:"Virement",statut:"Actif",objectif:"Perte de poids",lieu:"Distanciel",notes:"PDF envoyé",ci:3,mesures:[]},
-  {id:5,nom:"Laurie Jordan",telephone:"",offre:"1 séance/sem - 1 mois",debut:"09/04/2026",seancesPrevues:4,seancesEffectuees:4,montant:260,paye:260,paiement:"Virement",statut:"Terminé",objectif:"Perte de poids",lieu:"Domicile",notes:"",ci:4,mesures:[]},
-  {id:6,nom:"Linda",telephone:"",offre:"En cours",debut:"",seancesPrevues:null,seancesEffectuees:null,montant:null,paye:null,paiement:"",statut:"Actif",objectif:"",lieu:"",notes:"",ci:5,mesures:[]},
-  {id:7,nom:"Samantha Abgrall",telephone:"",offre:"PDF 3/sem",debut:"16/03/2026",seancesPrevues:12,seancesEffectuees:12,montant:59,paye:59,paiement:"Virement",statut:"Terminé",objectif:"Perte de poids",lieu:"Distanciel",notes:"",ci:6,mesures:[]},
-  {id:8,nom:"Anne-Christina Maillet",telephone:"",offre:"Offre trio 4 séances",debut:"05/03/2026",seancesPrevues:4,seancesEffectuees:4,montant:150,paye:150,paiement:"Espèces",statut:"Terminé",objectif:"Prise de masse",lieu:"Domicile",notes:"",ci:7,mesures:[]}
+  {id:1,nom:"Louise Gabillaud",age:35,email:"louise.gabillaud@gmail.com",telephone:"679753840",adresse:"",codePostal:"",ville:"",offre:"24 séances présentiel",debut:"03/04/2026",seancesPrevues:24,seancesEffectuees:5,montant:1200,paye:1200,paiement:"Virement",statut:"Actif",objectif:"Perte de poids",lieu:"Domicile",antecedents:"2 grossesses",joursPreferes:"Lundi 12H-13H / Vendredi 12H-13H",contratSigne:true,cgvAcceptees:true,notes:"",ci:0,
+    mesures:[{date:"03/04/2026",poids:70,taille:167,tourTaille:82,tourHanches:101,tourFessiers:105,tourCuisses:58,tourPoitrine:92,tourDos:null,tourBras:28}]},
+  {id:2,nom:"Béatrice Peuvrier",age:56,email:"beatrice.peuvrier@bconcept.ovh",telephone:"661635719",adresse:"",codePostal:"",ville:"",offre:"Pack 10 séances",debut:"03/03/2026",seancesPrevues:10,seancesEffectuees:1,montant:null,paye:null,paiement:"Virement",statut:"Actif",objectif:"Remise en forme",lieu:"Domicile",antecedents:"Pubalgie hanche / contracture psoas",joursPreferes:"Lundi 9H30 ou Mardi 9H30",contratSigne:true,cgvAcceptees:true,notes:"",ci:1,
+    mesures:[{date:"03/03/2026",poids:64,taille:168,tourTaille:72,tourHanches:103,tourFessiers:102,tourCuisses:54,tourPoitrine:95,tourDos:84,tourBras:28}]},
+  {id:3,nom:"Émeline Cozzi",age:31,email:"emeline.cozzibouygues@gmail.com",telephone:"650357276",adresse:"20 av du Président Salvador Allende",codePostal:"91240",ville:"St-Michel-sur-Orge",offre:"1 séance/sem - 1 mois",debut:"21/04/2026",seancesPrevues:4,seancesEffectuees:3,montant:290,paye:290,paiement:"Virement",statut:"Actif",objectif:"Prise de masse",lieu:"Hybride",antecedents:"RAS - 2 grossesses",joursPreferes:"Lundi 10H45 salle / Jeudi 12H domicile",contratSigne:true,cgvAcceptees:true,notes:"",ci:2,
+    mesures:[{date:"21/04/2026",poids:60,taille:164,tourTaille:71,tourHanches:89,tourFessiers:99,tourCuisses:58,tourPoitrine:89,tourDos:78,tourBras:26}]},
+  {id:4,nom:"Sandra Daouadi",age:37,email:"sandra_daouadi@yahoo.fr",telephone:"761417648",adresse:"19 rue Elsa Triolet",codePostal:"91160",ville:"Saulx-les-Chartreux",offre:"1 mois PDF Distanciel",debut:"15/04/2026",seancesPrevues:null,seancesEffectuees:null,montant:59,paye:59,paiement:"Virement",statut:"Actif",objectif:"Perte de poids",lieu:"Distanciel",antecedents:"Néant",joursPreferes:"",contratSigne:false,cgvAcceptees:true,notes:"Veut perdre du ventre. PDF envoyé.",ci:3,mesures:[]},
+  {id:5,nom:"Laurie Jordan",age:39,email:"jordan_laurie@yahoo.fr",telephone:"664635637",adresse:"5 rue des Vieux Gagnons",codePostal:"91460",ville:"Marcoussis",offre:"1 séance/sem - 1 mois",debut:"09/04/2026",seancesPrevues:4,seancesEffectuees:4,montant:260,paye:260,paiement:"Virement",statut:"Terminé",objectif:"Perte de poids",lieu:"Domicile",antecedents:"1 grossesse / déchirure ligaments genou / fracture pied",joursPreferes:"Jeudi",contratSigne:true,cgvAcceptees:true,notes:"",ci:4,
+    mesures:[{date:"09/04/2026",poids:92,taille:166,tourTaille:88,tourHanches:122,tourFessiers:125,tourCuisses:71,tourPoitrine:108,tourDos:87,tourBras:37}]},
+  {id:6,nom:"Samantha Abgrall",age:34,email:"samantha.abgrall@gmail.com",telephone:"",adresse:"",codePostal:"",ville:"",offre:"PDF 3/sem",debut:"16/03/2026",seancesPrevues:12,seancesEffectuees:12,montant:59,paye:59,paiement:"Virement",statut:"Terminé",objectif:"Perte de poids",lieu:"Distanciel",antecedents:"RAS - 2 grossesses",joursPreferes:"",contratSigne:false,cgvAcceptees:false,notes:"",ci:5,
+    mesures:[{date:"16/03/2026",poids:75,taille:166,tourTaille:85,tourHanches:99,tourFessiers:107,tourCuisses:63,tourPoitrine:null,tourDos:95,tourBras:32}]},
+  {id:7,nom:"Anne-Christina Maillet",age:43,email:"maillet.annechristina@gmail.com",telephone:"0688224794",adresse:"7 av 8 mai 1945",codePostal:"91160",ville:"Saulx-les-Chartreux",offre:"Offre trio 4 séances",debut:"05/03/2026",seancesPrevues:4,seancesEffectuees:4,montant:150,paye:150,paiement:"Espèces",statut:"Terminé",objectif:"Prise de masse",lieu:"Domicile",antecedents:"Douleur épaule droite",joursPreferes:"Jeudi 16H45",contratSigne:true,cgvAcceptees:true,notes:"",ci:6,mesures:[]},
+  {id:8,nom:"Anne-Fleur Tricaud",age:40,email:"anne.fleur.t@gmail.com",telephone:"676895915",adresse:"7 av 8 mai 1945",codePostal:"91160",ville:"Saulx-les-Chartreux",offre:"Offre trio 4 séances",debut:"05/03/2026",seancesPrevues:4,seancesEffectuees:0,montant:null,paye:null,paiement:"",statut:"Actif",objectif:"Prise de masse",lieu:"Domicile",antecedents:"RAS",joursPreferes:"Jeudi 16H45",contratSigne:true,cgvAcceptees:true,notes:"",ci:7,mesures:[]},
+  {id:9,nom:"Maela Leguillou",age:40,email:"maelaleguillou@hotmail.com",telephone:"",adresse:"7 av 8 mai 1945",codePostal:"91160",ville:"Saulx-les-Chartreux",offre:"Offre trio 4 séances",debut:"05/03/2026",seancesPrevues:4,seancesEffectuees:0,montant:null,paye:null,paiement:"",statut:"Actif",objectif:"Prise de masse",lieu:"Domicile",antecedents:"Mal de dos / début sciatique",joursPreferes:"Jeudi 16H45",contratSigne:true,cgvAcceptees:false,notes:"",ci:0,mesures:[]}
 ];
 
 var clients;
-try{var s=localStorage.getItem('ofc_crm_v3');clients=s?JSON.parse(s):JSON.parse(JSON.stringify(defaultClients));}
+try{var s=localStorage.getItem('ofc_crm_v4');clients=s?JSON.parse(s):JSON.parse(JSON.stringify(defaultClients));}
 catch(e){clients=JSON.parse(JSON.stringify(defaultClients));}
 var nextId=Math.max.apply(null,clients.map(function(c){return c.id||0}))+1;
 
-function save(){try{localStorage.setItem('ofc_crm_v3',JSON.stringify(clients));}catch(e){}}
+function save(){try{localStorage.setItem('ofc_crm_v4',JSON.stringify(clients));}catch(e){}}
 function initials(n){return n.split(' ').slice(0,2).map(function(x){return (x[0]||'').toUpperCase();}).join('');}
 function colFor(c){return COLORS[(c.ci||0)%COLORS.length];}
 function gv(id){var e=document.getElementById(id);return e?e.value.trim():'';}
@@ -420,10 +427,24 @@ function showDetail(id){
   }
   html+='</div>';
 
-  // ── INFOS ────────────────────────────────────────────────────
-  html+='<div class="dcard"><div class="dcard-title">Informations</div>';
-  var rows=[['Offre',c.offre],['Début',c.debut],['Téléphone',c.telephone],['Adresse',c.adresse],['Ville',c.ville],['Notes',c.notes]];
-  rows.forEach(function(r){if(r[1])html+='<div class="info-row"><span class="info-l">'+r[0]+'</span><span class="info-v">'+r[1]+'</span></div>';});
+  // ── INFOS COACHING ───────────────────────────────────────────
+  html+='<div class="dcard"><div class="dcard-title">Coaching</div>';
+  var rows1=[['Offre',c.offre],['Début',c.debut],['Jours',c.joursPreferes],['Antécédents',c.antecedents],['Notes',c.notes]];
+  rows1.forEach(function(r){if(r[1])html+='<div class="info-row"><span class="info-l">'+r[0]+'</span><span class="info-v">'+r[1]+'</span></div>';});
+  html+='</div>';
+
+  // ── CONTACT ──────────────────────────────────────────────────
+  html+='<div class="dcard"><div class="dcard-title">Contact & Admin</div>';
+  var adresseStr=(c.adresse?c.adresse+' ':'')+((c.codePostal||c.ville)?(c.codePostal?c.codePostal+' ':'')+c.ville:'');
+  var rows2=[
+    ['Âge',c.age?c.age+' ans':''],
+    ['Email',c.email],
+    ['Téléphone',c.telephone],
+    ['Adresse',adresseStr],
+    ['Contrat',c.contratSigne?'✅ Signé':'❌ Non signé'],
+    ['CGV',c.cgvAcceptees?'✅ Acceptées':'❌ Non acceptées']
+  ];
+  rows2.forEach(function(r){if(r[1])html+='<div class="info-row"><span class="info-l">'+r[0]+'</span><span class="info-v">'+r[1]+'</span></div>';});
   html+='</div>';
 
   html+='<button class="action-btn" onclick="showForm('+c.id+')">✏️ Modifier la fiche</button>';
@@ -539,14 +560,21 @@ function showForm(id){
   var isNew=!c;
   document.getElementById('form-back').onclick=function(){id?showDetail(id):showList();};
   var html='<div style="font-size:15px;font-weight:700;margin-bottom:14px">'+(isNew?'Nouvelle cliente':'Modifier — '+(c.nom||''))+'</div>';
-  html+='<div class="form-section-title">Informations générales</div>';
+  html+='<div class="form-section-title">Identité</div>';
   html+='<div class="form-group"><label class="form-label">Prénom et nom *</label><input class="form-input" id="f-nom" type="text" value="'+(c?c.nom||'':'')+'"></div>';
-  html+='<div class="form-group"><label class="form-label">Téléphone</label><input class="form-input" id="f-tel" type="tel" placeholder="06 xx xx xx xx" value="'+(c?c.telephone||'':'')+'"></div>';
+  html+='<div class="form-row">'+
+    '<div class="form-group"><label class="form-label">Âge</label><input class="form-input" id="f-age" type="number" min="0" max="99" value="'+(c&&c.age?c.age:'')+'"></div>'+
+    '<div class="form-group"><label class="form-label">Téléphone</label><input class="form-input" id="f-tel" type="tel" placeholder="06 xx xx xx xx" value="'+(c?c.telephone||'':'')+'"></div>'+
+    '</div>';
+  html+='<div class="form-group"><label class="form-label">Email</label><input class="form-input" id="f-email" type="email" placeholder="email@exemple.fr" value="'+(c?c.email||'':'')+'"></div>';
   html+='<div class="form-group"><label class="form-label">Adresse</label><input class="form-input" id="f-adresse" type="text" placeholder="N° et rue" value="'+(c?c.adresse||'':'')+'"></div>';
   html+='<div class="form-row">'+
     '<div class="form-group"><label class="form-label">Code postal</label><input class="form-input" id="f-cp" type="text" inputmode="numeric" placeholder="75000" value="'+(c?c.codePostal||'':'')+'"></div>'+
     '<div class="form-group"><label class="form-label">Ville</label><input class="form-input" id="f-ville" type="text" placeholder="Paris" value="'+(c?c.ville||'':'')+'"></div>'+
     '</div>';
+  html+='<div class="form-section-title">Coaching</div>';
+  html+='<div class="form-group"><label class="form-label">Antécédents / Points de santé</label><input class="form-input" id="f-ant" type="text" placeholder="Blessures, douleurs, grossesses..." value="'+(c?c.antecedents||'':'')+'"></div>';
+  html+='<div class="form-group"><label class="form-label">Jours préférés</label><input class="form-input" id="f-jours" type="text" placeholder="Lundi 10H, Jeudi 12H..." value="'+(c?c.joursPreferes||'':'')+'"></div>';
   html+='<div class="form-row">'+
     '<div class="form-group"><label class="form-label">Objectif</label>'+
     '<select class="form-input" id="f-obj"><option value="">—</option>'+
@@ -577,6 +605,16 @@ function showForm(id){
     ['Virement','Espèces','PayPal','Stripe','Autre'].map(function(o){return '<option'+(c&&c.paiement===o?' selected':'')+'>'+o+'</option>';}).join('')+
     '</select></div>';
   html+='<div class="form-group"><label class="form-label">Notes</label><input class="form-input" id="f-notes" value="'+(c?c.notes||'':'')+'"></div>';
+  html+='<div class="form-section-title">Administratif</div>';
+  html+='<div class="form-row">'+
+    '<div class="form-group"><label class="form-label">Contrat signé</label><select class="form-input" id="f-contrat">'+
+    '<option value="oui"'+(c&&c.contratSigne?' selected':'')+'>Oui</option>'+
+    '<option value="non"'+(!c||!c.contratSigne?' selected':'')+'>Non</option>'+
+    '</select></div>'+
+    '<div class="form-group"><label class="form-label">CGV acceptées</label><select class="form-input" id="f-cgv">'+
+    '<option value="oui"'+(c&&c.cgvAcceptees?' selected':'')+'>Oui</option>'+
+    '<option value="non"'+(!c||!c.cgvAcceptees?' selected':'')+'>Non</option>'+
+    '</select></div></div>';
   html+='<button class="save-btn" onclick="saveForm('+(id||'null')+')">Enregistrer</button>';
   if(!isNew)html+='<button class="danger-btn" style="margin-top:8px" onclick="deleteClient('+id+')">Supprimer cette cliente</button>';
   html+='<div style="height:20px"></div>';
@@ -591,14 +629,22 @@ function saveForm(id){
   if(id){
     var c=clients.find(function(x){return x.id===id;});
     if(c){
-      c.nom=nom;c.telephone=gv('f-tel');c.adresse=gv('f-adresse');c.codePostal=gv('f-cp');c.ville=gv('f-ville');c.objectif=gv('f-obj');c.lieu=gv('f-lieu');
+      c.nom=nom;c.age=gn('f-age');c.email=gv('f-email');c.telephone=gv('f-tel');
+      c.adresse=gv('f-adresse');c.codePostal=gv('f-cp');c.ville=gv('f-ville');
+      c.objectif=gv('f-obj');c.lieu=gv('f-lieu');
+      c.antecedents=gv('f-ant');c.joursPreferes=gv('f-jours');
       c.offre=gv('f-offre');c.debut=gv('f-debut');c.statut=gv('f-statut');
       c.seancesPrevues=sp;c.seancesEffectuees=se||0;
       c.montant=gn('f-mont');c.paye=gn('f-paye');c.paiement=gv('f-paiem');c.notes=gv('f-notes');
+      c.contratSigne=gv('f-contrat')==='oui';c.cgvAcceptees=gv('f-cgv')==='oui';
     }
     save();toast('Fiche mise à jour');showDetail(id);
   }else{
-    var nc={id:nextId++,nom:nom,telephone:gv('f-tel'),adresse:gv('f-adresse'),codePostal:gv('f-cp'),ville:gv('f-ville'),objectif:gv('f-obj'),lieu:gv('f-lieu'),
+    var nc={id:nextId++,nom:nom,age:gn('f-age'),email:gv('f-email'),telephone:gv('f-tel'),
+      adresse:gv('f-adresse'),codePostal:gv('f-cp'),ville:gv('f-ville'),
+      objectif:gv('f-obj'),lieu:gv('f-lieu'),
+      antecedents:gv('f-ant'),joursPreferes:gv('f-jours'),
+      contratSigne:gv('f-contrat')==='oui',cgvAcceptees:gv('f-cgv')==='oui',
       offre:gv('f-offre'),debut:gv('f-debut'),statut:gv('f-statut'),
       seancesPrevues:sp,seancesEffectuees:se||0,
       montant:gn('f-mont'),paye:gn('f-paye'),paiement:gv('f-paiem'),notes:gv('f-notes'),

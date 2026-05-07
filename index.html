@@ -164,7 +164,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
 
 <!-- VIEW: FORM -->
 <div id="view-form" class="view">
-  <button class="back-btn" onclick="showList()">← Annuler</button>
+  <button class="back-btn" id="form-back">← Annuler</button>
   <div class="form-wrap" id="form-content"></div>
 </div>
 
@@ -440,6 +440,7 @@ function sendRelanceWA(id){
 function addSeance(id){
   var c=clients.find(function(x){return x.id===id;});
   if(!c||!c.seancesPrevues||c.seancesEffectuees>=c.seancesPrevues)return;
+  if(!confirm('Valider une séance pour '+c.nom.split(' ')[0]+' ? ('+c.seancesEffectuees+' → '+(c.seancesEffectuees+1)+'/'+c.seancesPrevues+')'))return;
   c.seancesEffectuees++;save();
   toast('Séance validée — '+c.seancesEffectuees+'/'+c.seancesPrevues);
   showDetail(id);
@@ -488,6 +489,7 @@ function saveMension(id){
 function showForm(id){
   var c=id?clients.find(function(x){return x.id===id;}):null;
   var isNew=!c;
+  document.getElementById('form-back').onclick=function(){id?showDetail(id):showList();};
   var html='<div style="font-size:15px;font-weight:700;margin-bottom:14px">'+(isNew?'Nouvelle cliente':'Modifier — '+(c.nom||''))+'</div>';
   html+='<div class="form-section-title">Informations générales</div>';
   html+='<div class="form-group"><label class="form-label">Prénom et nom *</label><input class="form-input" id="f-nom" type="text" value="'+(c?c.nom||'':'')+'"></div>';

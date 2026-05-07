@@ -286,7 +286,7 @@ function renderCard(c){
     '<div class="stats-row">'+
     '<div class="stat"><div class="stat-l">Séances</div><div class="stat-v">'+seances+'</div></div>'+
     '<div class="stat"><div class="stat-l">Restantes</div><div class="stat-v">'+reste+'</div></div>'+
-    '<div class="stat"><div class="stat-l">Payé</div><div class="stat-v" style="'+payeColor+'">'+payeStr+'</div></div>'+
+    '<div class="stat"><div class="stat-l">Payé '+(c.montant&&c.paye>=c.montant?'✅':c.paye?'⏳':'')+'</div><div class="stat-v" style="'+payeColor+'">'+payeStr+(c.montant?' / '+c.montant+'€':'')+'</div></div>'+
     '</div></div>';
 }
 
@@ -331,52 +331,80 @@ function showDetail(id){
       '</div>';
   }
 
-  // Mensurations
+  // ── PAIEMENT ────────────────────────────────────────────────
+  if(c.montant){
+    var payePct=c.paye?Math.min(100,Math.round(c.paye/c.montant*100)):0;
+    var payeCol=payePct>=100?'var(--green)':payePct>0?'#C96358':'#E24B4A';
+    var solde=c.montant-(c.paye||0);
+    html+='<div class="dcard"><div class="dcard-title">Paiement</div>'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'+
+      '<div><div style="font-size:30px;font-weight:700;color:'+payeCol+';line-height:1">'+(c.paye||0)+'€</div>'+
+      '<div style="font-size:11px;color:var(--text2);margin-top:2px">payé sur '+c.montant+'€</div></div>'+
+      '<div style="font-size:28px">'+(payePct>=100?'✅':payePct>0?'⏳':'❌')+'</div></div>'+
+      '<div class="prog-bar" style="height:8px;margin:0 0 8px"><div class="prog-fill" style="width:'+payePct+'%;background:'+payeCol+'"></div></div>'+
+      (solde>0?'<div style="font-size:12px;color:#C96358;font-weight:600">Reste à encaisser : '+solde+'€</div>':
+               '<div style="font-size:12px;color:var(--green);font-weight:600">✓ Payé en totalité</div>')+
+      (c.paiement?'<div style="font-size:11px;color:var(--text2);margin-top:6px">Mode : '+c.paiement+'</div>':'')+
+      '</div>';
+  }
+
+  // ── MENSURATIONS ────────────────────────────────────────────
   var mesures=c.mesures||[];
   html+='<div class="dcard">'+
     '<div class="dcard-title">Mensurations'+
     '<button class="dcard-edit" onclick="showMension('+c.id+')">+ Nouvelle mesure</button></div>';
   if(mesures.length===0){
-    html+='<p style="font-size:12px;color:#B0A8A8">Aucune mensuration. Ajoute la première mesure !</p>';
+    html+='<p style="font-size:12px;color:#B0A8A8">Aucune mensuration enregistrée.</p>';
   } else {
     var last=mesures[mesures.length-1];
     var prev=mesures.length>1?mesures[mesures.length-2]:null;
+    var first=mesures[0];
     html+='<div style="font-size:11px;color:#7A6E6E;margin-bottom:8px">Dernière mesure : '+last.date+'</div>';
+
+    // Grille valeurs actuelles + diff depuis précédente
     html+='<div class="m-grid">';
     MFIELDS.forEach(function(f){
       if(!last[f.key])return;
-      var diff='';
+      var diffPrev='',diffTotal='';
       if(prev&&prev[f.key]){
-        var d=(last[f.key]-prev[f.key]);
+        var d=parseFloat((last[f.key]-prev[f.key]).toFixed(1));
         var sign=d>0?'+':'';
-        var cls=f.key==='poids'?(d>0?'pos':'neg'):(d<0?'neg':'pos');
-        diff='<div class="m-diff '+cls+'">'+sign+d.toFixed(1)+' '+f.unit+'</div>';
+        var cls=f.key==='poids'||f.key==='tourTaille'||f.key==='tourHanches'||f.key==='tourFessiers'||f.key==='tourCuisses'||f.key==='tourPoitrine'||f.key==='tourBras'
+          ?(d<0?'neg':'pos'):(d>0?'pos':'neg');
+        diffPrev='<div class="m-diff '+cls+'" title="vs mesure précédente">'+sign+d+' '+f.unit+'</div>';
       }
-      html+='<div class="m-item"><div class="m-label">'+f.label+'</div><div class="m-val">'+last[f.key]+' '+f.unit+'</div>'+diff+'</div>';
+      if(mesures.length>1&&first[f.key]&&first!==last){
+        var dt=parseFloat((last[f.key]-first[f.key]).toFixed(1));
+        var signT=dt>0?'+':'';
+        var clsT=f.key==='poids'||f.key==='tourTaille'||f.key==='tourHanches'
+          ?(dt<0?'neg':'pos'):(dt>0?'pos':'neg');
+        diffTotal='<div style="font-size:9px;color:var(--text3);margin-top:1px">Total : <span style="font-weight:700;color:'+(clsT==='neg'?'var(--green)':'#E24B4A')+'">'+signT+dt+' '+f.unit+'</span></div>';
+      }
+      html+='<div class="m-item"><div class="m-label">'+f.label+'</div><div class="m-val">'+last[f.key]+' '+f.unit+'</div>'+diffPrev+diffTotal+'</div>';
     });
     html+='</div>';
 
-    // Mini graphique poids si dispo
-    var poidsData=mesures.filter(function(m){return m.poids;});
-    if(poidsData.length>1){
-      var vals=poidsData.map(function(m){return m.poids;});
-      var maxV=Math.max.apply(null,vals);
-      var minV=Math.min.apply(null,vals);
-      var range=maxV-minV||1;
-      html+='<div class="chart-bar-wrap"><div class="chart-label">Poids (kg)</div><div class="chart-bars">';
-      poidsData.forEach(function(m,i){
-        var h=Math.round(((m.poids-minV)/range)*50)+10;
-        var isLast=i===poidsData.length-1;
+    // Graphiques pour chaque metric disponible sur 2+ points
+    var chartKeys=[{key:'poids',label:'Poids',unit:'kg'},{key:'tourTaille',label:'Tour taille',unit:'cm'},{key:'tourHanches',label:'Hanches',unit:'cm'},{key:'tourFessiers',label:'Fessiers',unit:'cm'}];
+    chartKeys.forEach(function(f){
+      var data=mesures.filter(function(m){return m[f.key];});
+      if(data.length<2)return;
+      var vals=data.map(function(m){return m[f.key];});
+      var maxV=Math.max.apply(null,vals),minV=Math.min.apply(null,vals),range=maxV-minV||1;
+      html+='<div class="chart-bar-wrap"><div class="chart-label">'+f.label+' ('+f.unit+')</div><div class="chart-bars">';
+      data.forEach(function(m,i){
+        var h=Math.round(((m[f.key]-minV)/range)*50)+10;
+        var isLast=i===data.length-1;
         html+='<div class="chart-bar-col">'+
-          '<div class="chart-val">'+m.poids+'</div>'+
+          '<div class="chart-val">'+m[f.key]+'</div>'+
           '<div class="chart-bar'+(isLast?' latest':'')+'" style="height:'+h+'px"></div>'+
           '<div class="chart-date">'+m.date.split('/').slice(0,2).join('/')+'</div>'+
           '</div>';
       });
       html+='</div></div>';
-    }
+    });
 
-    // Tableau historique complet
+    // Tableau historique
     if(mesures.length>1){
       html+='<div style="margin-top:12px;overflow-x:auto"><table class="histo-table"><thead><tr><th>Date</th>';
       var usedKeys=MFIELDS.filter(function(f){return mesures.some(function(m){return m[f.key];});});
@@ -392,9 +420,9 @@ function showDetail(id){
   }
   html+='</div>';
 
-  // Infos
+  // ── INFOS ────────────────────────────────────────────────────
   html+='<div class="dcard"><div class="dcard-title">Informations</div>';
-  var rows=[['Offre',c.offre],['Début',c.debut],['Téléphone',c.telephone],['Adresse',c.adresse],['Ville',c.ville],['Paiement',c.paiement],['Montant',c.montant?c.montant+'€':''],['Payé',c.paye?c.paye+'€ ✓':''],['Notes',c.notes]];
+  var rows=[['Offre',c.offre],['Début',c.debut],['Téléphone',c.telephone],['Adresse',c.adresse],['Ville',c.ville],['Notes',c.notes]];
   rows.forEach(function(r){if(r[1])html+='<div class="info-row"><span class="info-l">'+r[0]+'</span><span class="info-v">'+r[1]+'</span></div>';});
   html+='</div>';
 

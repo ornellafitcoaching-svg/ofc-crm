@@ -363,38 +363,41 @@ function showDetail(id){
   if(mesures.length===0){
     html+='<p style="font-size:12px;color:#B0A8A8">Aucune mensuration enregistrée.</p>';
   } else {
-    var last=mesures[mesures.length-1];
-    var prev=mesures.length>1?mesures[mesures.length-2]:null;
-    var first=mesures[0];
-    html+='<div style="font-size:11px;color:#7A6E6E;margin-bottom:8px">Dernière mesure : '+last.date+'</div>';
+    var sorted=mesures.slice().sort(function(a,b){
+      var pa=a.date.split('/'),pb=b.date.split('/');
+      return new Date(+pa[2],+pa[1]-1,+pa[0])-new Date(+pb[2],+pb[1]-1,+pb[0]);
+    });
+    html+='<div style="font-size:11px;color:#7A6E6E;margin-bottom:8px">Dernière mesure : '+sorted[sorted.length-1].date+'</div>';
 
-    // Grille valeurs actuelles + diff depuis précédente
+    // Grille valeurs actuelles + diff depuis précédente (triées par date)
     html+='<div class="m-grid">';
     MFIELDS.forEach(function(f){
-      if(!last[f.key])return;
+      var withField=sorted.filter(function(m){return m[f.key]!=null;});
+      if(!withField.length)return;
+      var lastVal=withField[withField.length-1][f.key];
+      var prevVal=withField.length>1?withField[withField.length-2][f.key]:null;
+      var firstVal=withField[0][f.key];
       var diffPrev='',diffTotal='';
-      if(prev&&prev[f.key]){
-        var d=parseFloat((last[f.key]-prev[f.key]).toFixed(1));
+      if(prevVal!==null){
+        var d=parseFloat((lastVal-prevVal).toFixed(1));
         var sign=d>0?'+':'';
-        var cls=f.key==='poids'||f.key==='tourTaille'||f.key==='tourHanches'||f.key==='tourFessiers'||f.key==='tourCuisses'||f.key==='tourPoitrine'||f.key==='tourBras'
-          ?(d<0?'neg':'pos'):(d>0?'pos':'neg');
+        var cls=f.key==='taille'?(d>0?'pos':'neg'):(d<0?'neg':'pos');
         diffPrev='<div class="m-diff '+cls+'" title="vs mesure précédente">'+sign+d+' '+f.unit+'</div>';
       }
-      if(mesures.length>1&&first[f.key]&&first!==last){
-        var dt=parseFloat((last[f.key]-first[f.key]).toFixed(1));
+      if(withField.length>1){
+        var dt=parseFloat((lastVal-firstVal).toFixed(1));
         var signT=dt>0?'+':'';
-        var clsT=f.key==='poids'||f.key==='tourTaille'||f.key==='tourHanches'
-          ?(dt<0?'neg':'pos'):(dt>0?'pos':'neg');
+        var clsT=f.key==='taille'?(dt>0?'neg':'pos'):(dt<0?'neg':'pos');
         diffTotal='<div style="font-size:9px;color:var(--text3);margin-top:1px">Total : <span style="font-weight:700;color:'+(clsT==='neg'?'var(--green)':'#E24B4A')+'">'+signT+dt+' '+f.unit+'</span></div>';
       }
-      html+='<div class="m-item"><div class="m-label">'+f.label+'</div><div class="m-val">'+last[f.key]+' '+f.unit+'</div>'+diffPrev+diffTotal+'</div>';
+      html+='<div class="m-item"><div class="m-label">'+f.label+'</div><div class="m-val">'+lastVal+' '+f.unit+'</div>'+diffPrev+diffTotal+'</div>';
     });
     html+='</div>';
 
-    // Graphiques pour chaque metric disponible sur 2+ points
+    // Graphiques triés chronologiquement
     var chartKeys=[{key:'poids',label:'Poids',unit:'kg'},{key:'tourTaille',label:'Tour taille',unit:'cm'},{key:'tourHanches',label:'Hanches',unit:'cm'},{key:'tourFessiers',label:'Fessiers',unit:'cm'}];
     chartKeys.forEach(function(f){
-      var data=mesures.filter(function(m){return m[f.key];});
+      var data=sorted.filter(function(m){return m[f.key]!=null;});
       if(data.length<2)return;
       var vals=data.map(function(m){return m[f.key];});
       var maxV=Math.max.apply(null,vals),minV=Math.min.apply(null,vals),range=maxV-minV||1;
@@ -411,15 +414,15 @@ function showDetail(id){
       html+='</div></div>';
     });
 
-    // Tableau historique — toujours affiché avec bouton modifier
-    var usedKeys=MFIELDS.filter(function(f){return mesures.some(function(m){return m[f.key];});});
+    // Tableau historique trié par date décroissante
+    var usedKeys=MFIELDS.filter(function(f){return mesures.some(function(m){return m[f.key]!=null;});});
     html+='<div style="margin-top:12px;overflow-x:auto"><table class="histo-table"><thead><tr><th>Date</th>';
     usedKeys.forEach(function(f){html+='<th>'+f.label+'</th>';});
     html+='<th></th></tr></thead><tbody>';
-    mesures.slice().reverse().forEach(function(m,ri){
-      var origIdx=mesures.length-1-ri;
+    sorted.slice().reverse().forEach(function(m){
+      var origIdx=mesures.indexOf(m);
       html+='<tr><td>'+m.date+'</td>';
-      usedKeys.forEach(function(f){html+='<td>'+(m[f.key]?m[f.key]+' '+f.unit:'—')+'</td>';});
+      usedKeys.forEach(function(f){html+='<td>'+(m[f.key]!=null?m[f.key]+' '+f.unit:'—')+'</td>';});
       html+='<td><button onclick="editMension('+c.id+','+origIdx+')" style="background:none;border:none;color:var(--accent);font-size:13px;cursor:pointer;padding:2px 6px">✏️</button></td>';
       html+='</tr>';
     });

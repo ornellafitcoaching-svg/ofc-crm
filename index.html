@@ -154,7 +154,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
     <div><div class="app-title">Ornella Fit Coaching</div><div class="app-date" id="today-date"></div></div>
     <div style="display:flex;align-items:center;gap:6px">
       <button class="notif-btn" id="notif-btn" onclick="toggleNotif()" title="Alertes iPhone">🔔</button>
+      <button class="notif-btn" onclick="showBackup()" title="Sauvegarde">💾</button>
       <button class="btn-add" onclick="showForm(null)">+ Ajouter</button>
+      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
     </div>
   </div>
   <div class="tabs">
@@ -713,6 +715,52 @@ function toast(msg){
   setTimeout(function(){t.classList.remove('show');},2500);
 }
 
+// ── SAUVEGARDE / RESTAURATION ─────────────────────────────────
+function showBackup(){
+  var d=new Date().toLocaleDateString('fr-FR').replace(/\//g,'-');
+  if(confirm('Exporter les données ?\n\nChoisir "Annuler" pour importer à la place.')){
+    exportData();
+  } else {
+    document.getElementById('import-file').click();
+  }
+}
+
+function exportData(){
+  var json=JSON.stringify({version:'ofc-crm-v1',date:new Date().toISOString(),clients:clients},null,2);
+  var blob=new Blob([json],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  var d=new Date().toLocaleDateString('fr-FR').replace(/\//g,'-');
+  a.href=url;a.download='ofc-crm-'+d+'.json';
+  document.body.appendChild(a);a.click();
+  document.body.removeChild(a);URL.revokeObjectURL(url);
+  toast('Données exportées ✓');
+}
+
+function importData(e){
+  var file=e.target.files[0];
+  if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      var data=JSON.parse(ev.target.result);
+      var imported=data.clients||data;
+      if(!Array.isArray(imported)||!imported.length)throw new Error();
+      if(!confirm('Restaurer '+imported.length+' cliente(s) ?\n\n⚠️ Les données actuelles seront remplacées.')){
+        e.target.value='';return;
+      }
+      clients=imported;
+      nextId=Math.max.apply(null,clients.map(function(c){return c.id||0}))+1;
+      save();renderAll();
+      toast('Données restaurées ✓ ('+imported.length+' clientes)');
+    }catch(err){
+      toast('Fichier invalide — importation annulée');
+    }
+    e.target.value='';
+  };
+  reader.readAsText(file);
+}
+
 // ── NOTIFICATIONS ─────────────────────────────────────────────
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('./sw.js').catch(function(){});
@@ -768,10 +816,14 @@ function checkMensurationReminder(){
   if(!('Notification' in window)||Notification.permission!=='granted')return;
   var now=new Date();
   clients.filter(function(c){return c.statut==='Actif'&&c.mesures&&c.mesures.length;}).forEach(function(c){
-    var last=c.mesures[c.mesures.length-1];
+    var sorted=c.mesures.slice().sort(function(a,b){
+      var pa=a.date.split('/'),pb=b.date.split('/');
+      return new Date(+pb[2],+pb[1]-1,+pb[0])-new Date(+pa[2],+pa[1]-1,+pa[0]);
+    });
+    var last=sorted[0];
     var p=last.date.split('/');
     if(p.length!==3)return;
-    var lastDate=new Date(p[2],p[1]-1,p[0]);
+    var lastDate=new Date(+p[2],+p[1]-1,+p[0]);
     var jours=Math.round((now-lastDate)/(1000*60*60*24));
     if(jours>=28){
       navigator.serviceWorker.ready.then(function(reg){
